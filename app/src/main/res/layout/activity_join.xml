@@ -7,9 +7,7 @@
     android:background="@drawable/auth_image"
     tools:context=".auth.JoinActivity">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -25,6 +23,7 @@
                 android:background="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Email" />
@@ -39,6 +38,7 @@
                 app:counterMaxLength="10">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Password" />
@@ -53,6 +53,7 @@
                 app:counterMaxLength="10">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputPasswordCheck"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Password Check" />
@@ -66,6 +67,7 @@
                 android:background="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="닉네임" />
@@ -78,6 +80,7 @@
                 android:background="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputGender"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="성별(M/W)" />
@@ -90,6 +93,7 @@
                 android:background="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputArea"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="지역" />
@@ -102,12 +106,14 @@
                 android:background="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputAge"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="나이" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
+                android:id="@+id/btn_join_ok"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="회원가입"
@@ -116,5 +122,4 @@
                 android:background="@color/main_color"/>
 
         </LinearLayout>
-    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

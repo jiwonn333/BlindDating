@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">BlindDating</string>
+
+    <!-- 토스트메시지 -->
+    <string name="msg_input_email">이메일을 정확히 입력해주세요.</string>
+    <string name="msg_input_pw">비밀번호 6자리 이상 입력해주세요.</string>
+    <string name="msg_pw">비밀번호가 일치합니다.</string>
+    <string name="msg_pw_check">비밀번호 일치 확인해주세요.</string>
+
+
 </resources>

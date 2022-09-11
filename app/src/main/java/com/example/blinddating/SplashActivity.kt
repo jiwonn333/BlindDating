@@ -4,29 +4,53 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blinddating.auth.IntroActivity
+import com.example.blinddating.utils.FirebaseAuthUtils
+import com.google.firebase.auth.FirebaseAuth
 
 class SplashActivity : AppCompatActivity() {
+
+    private val TAG = "SplashActivity"
+
+    private val auth = FirebaseAuth.getInstance()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-//        //Handler 구현 : 특정 시간동안 SplashActivity 화면 보여주기 위함
-//        Handler().postDelayed({
-//            val intent = Intent(this, IntroActivity::class.java)
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-//            startActivity(intent)
-//            finish()
-//        }, 3000)
+        val uid = FirebaseAuthUtils.getUid()
+        // 현재 UID 값
+        Log.d(TAG, uid)
 
-        // Handler 경고 --> Looper 사용
-        Handler(Looper.getMainLooper()).postDelayed({
-            val intent = Intent(this, IntroActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
-            startActivity(intent)
-            finish()
-        }, 3000)
+        if (uid == "null") {
+            //Handler 구현 : 특정 시간동안 SplashActivity 화면 보여주기 위함
+            //        Handler().postDelayed({
+            //            val intent = Intent(this, IntroActivity::class.java)
+            //            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            //            startActivity(intent)
+            //            finish()
+            //        }, 3000)
+
+            // Handler 경고 --> Looper 사용
+            Handler(Looper.getMainLooper()).postDelayed({
+                val intent = Intent(this, IntroActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                startActivity(intent)
+                finish()
+            }, 3000)
+        } else {
+            // Handler 경고 --> Looper 사용
+            Handler(Looper.getMainLooper()).postDelayed({
+                val intent = Intent(this, MainActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                startActivity(intent)
+                finish()
+            }, 3000)
+        }
+
+
 
     }
 }

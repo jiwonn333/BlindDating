@@ -1,9 +1,20 @@
 package com.example.blinddating
 
+import android.app.AlertDialog
+import android.app.Dialog
+import android.content.DialogInterface
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
+import android.widget.Toast
+import com.example.blinddating.auth.IntroActivity
 import com.example.blinddating.slider.CardStackAdapter
+import com.example.blinddating.utils.FirebaseAuthUtils
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager
 import com.yuyakaido.android.cardstackview.CardStackListener
 import com.yuyakaido.android.cardstackview.CardStackView
@@ -20,6 +31,28 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val settingIcon = findViewById<ImageView>(R.id.logoutIcon)
+        settingIcon.setOnClickListener {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("로그아웃")
+                .setMessage("로그아웃 하시겠습니까?")
+                .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, id ->
+                    val auth = Firebase.auth
+                    auth.signOut()
+
+                    val intent = Intent(this, IntroActivity::class.java)
+                    startActivity(intent)
+
+                    Toast.makeText(this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
+                })
+                .setNegativeButton("취소",
+                DialogInterface.OnClickListener { dialog, i ->
+
+                })
+            builder.show()
+
+          }
 
         val cardStackView = findViewById<CardStackView>(R.id.cardStackView)
 
