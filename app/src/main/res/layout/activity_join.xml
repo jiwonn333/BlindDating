@@ -69,7 +69,7 @@
                 android:background="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputName"
+                    android:id="@+id/inputNickName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="닉네임" />
@@ -95,7 +95,7 @@
                 android:background="@color/white">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputArea"
+                    android:id="@+id/inputCity"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="지역" />

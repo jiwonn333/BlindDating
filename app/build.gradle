@@ -47,7 +47,10 @@ dependencies {
     // 슬라이딩 화면 구현 - CardStackView 라이브러리 사용
     implementation "com.yuyakaido.android:card-stack-view:2.3.4"
 
-    implementation platform('com.google.firebase:firebase-bom:30.2.0')
+    implementation platform('com.google.firebase:firebase-bom:30.3.1')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
+    // Realtime Database 라이브러리 선언
+    implementation 'com.google.firebase:firebase-database-ktx'
+
 }
