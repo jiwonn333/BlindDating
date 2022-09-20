@@ -1,9 +1,12 @@
 package com.example.blinddating.auth
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blinddating.MainActivity
 import com.example.blinddating.R
@@ -21,6 +24,7 @@ class JoinActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_join)
 
+        // 현재 인증상태 확인
         // Initialize Firebase Auth
         auth = Firebase.auth
 
@@ -41,23 +45,36 @@ class JoinActivity : AppCompatActivity() {
                 .addOnCompleteListener(this) { task ->
 
                     if (task.isSuccessful) {
-
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d(TAG, "createUserWithEmail:success")
+                        Log.d(TAG, "createUserWithEmail: 계정 생성 성공")
 
                         // 신규 사용자 유효성 검사사
                        val user = auth.currentUser
                         Log.d(TAG, user?.uid.toString())
+                        Toast.makeText(this, "계정 생성 성공", Toast.LENGTH_SHORT).show()
 
-                        // 회원가입 성공시 메인 Activity로 이동
-                        val intent = Intent(this, MainActivity::class.java)
-                        startActivity(intent)
+                        // 계정 생성 성공 시 바로 로그인 할 것인지
+                        val builder = AlertDialog.Builder(this)
+                        builder.setTitle("회원가입 성공")
+                            .setMessage("로그인 하시겠습니까?")
+                            .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, id ->
+                                // 회원가입 성공 후 로그인시 바로 메인 Activity로 이동
+                                val intent = Intent(this, MainActivity::class.java)
+                                startActivity(intent)
+                                finish()
 
+                                Toast.makeText(this, "로그인 되었습니다.", Toast.LENGTH_SHORT).show()
+                            })
+                            .setNegativeButton("취소",
+                                DialogInterface.OnClickListener { dialog, i ->
+                                })
+                        builder.show()
+                        
+
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w(TAG, "createUserWithEmail: 계정 생성 실패", task.exception)
+                        Toast.makeText(this, "계정 생성 실패", Toast.LENGTH_SHORT).show()
                     }
-                    // If sign in fails, display a message to the user.
-                    Log.w(TAG, "createUserWithEmail:failure", task.exception)
-
-
                 }
         }
 
