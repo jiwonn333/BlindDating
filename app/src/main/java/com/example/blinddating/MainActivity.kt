@@ -1,19 +1,23 @@
 package com.example.blinddating
 
 import android.app.AlertDialog
-import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.example.blinddating.auth.IntroActivity
+import com.example.blinddating.auth.UserDataModel
 import com.example.blinddating.slider.CardStackAdapter
-import com.example.blinddating.utils.FirebaseAuthUtils
-import com.google.firebase.auth.FirebaseAuth
+import com.example.blinddating.utils.FirebaseRef
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager
 import com.yuyakaido.android.cardstackview.CardStackListener
@@ -23,9 +27,11 @@ import com.yuyakaido.android.cardstackview.Direction
 class MainActivity : AppCompatActivity() {
 
     lateinit var cardStackAdapter: CardStackAdapter
-    // RecycelrView 만들 때 LayoutManager(LinearLayout, GridLayout)과 같은
-    lateinit var manager : CardStackLayoutManager
 
+    // RecycelrView 만들 때 LayoutManager(LinearLayout, GridLayout)과 같은
+    lateinit var manager: CardStackLayoutManager
+
+    private val TAG = "MainActivity"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,16 +54,16 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
                 })
                 .setNegativeButton("취소",
-                DialogInterface.OnClickListener { dialog, i ->
+                    DialogInterface.OnClickListener { dialog, i ->
 
-                })
+                    })
             builder.show()
 
-          }
+        }
 
         val cardStackView = findViewById<CardStackView>(R.id.cardStackView)
 
-        manager = CardStackLayoutManager(baseContext, object : CardStackListener{
+        manager = CardStackLayoutManager(baseContext, object : CardStackListener {
             override fun onCardDragging(direction: Direction?, ratio: Float) {
 
             }
@@ -93,5 +99,32 @@ class MainActivity : AppCompatActivity() {
         cardStackAdapter = CardStackAdapter(baseContext, testList)
         cardStackView.layoutManager = manager
         cardStackView.adapter = cardStackAdapter
+
+        getUserDataList()
+    }
+
+    private fun getUserDataList() {
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                val post = dataSnapshot.getValue<Post>()
+//                Log.d(TAG, dataSnapshot.toString()) // 전체 불러옴
+
+                for (dataModel in dataSnapshot.children) {
+                    val userInfoList = dataModel.getValue(UserDataModel::class.java)
+                    if (userInfoList != null) {
+                        Log.d(TAG, userInfoList.nickname.toString())
+                    }
+                }
+                
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
+            }
+        }
+        // 데이터 저장 경로
+        // addValueEventListener - 경로의 전체 내용에 대한 변경 사항 읽고 수신 대기
+        FirebaseRef.userInfoRef.addValueEventListener(postListener)
     }
 }
