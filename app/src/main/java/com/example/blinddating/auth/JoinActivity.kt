@@ -13,6 +13,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blinddating.MainActivity
@@ -45,6 +46,8 @@ class JoinActivity : AppCompatActivity() {
     private var city = ""
     private var age = "" // 문자로 받아올 예정
 
+    lateinit var profileImageView : ImageView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_join)
@@ -52,23 +55,21 @@ class JoinActivity : AppCompatActivity() {
         // Initialize Firebase Auth
         auth = Firebase.auth
 
+        profileImageView = findViewById(R.id.imageArea)
 
-        val profileImageView = findViewById<ImageView>(R.id.imageArea)
         val profileContents = findViewById<TextView>(R.id.imageTextArea)
 
         // 핸드폰에 있는 이미지 가져오기
-        val getContent = registerForActivityResult(
-            ActivityResultContracts.GetContent()
-        ) { uri: Uri? ->
-            // Handle the returned Uri
+        val getImageUri = registerForActivityResult(ActivityResultContracts.GetContent(), ActivityResultCallback { uri ->
             profileImageView.setImageURI(uri)
             profileContents.visibility = View.GONE
-        }
+        })
+
 
         // 이미지 클릭 시 Firebase storage에 저장
         profileImageView.setOnClickListener {
             // 결과를 위한 활동 실행
-            getContent.launch("image/*")
+            getImageUri.launch("image/*")
         }
 
 
@@ -76,8 +77,7 @@ class JoinActivity : AppCompatActivity() {
         btnJoin.setOnClickListener {
             email = findViewById<TextInputEditText>(R.id.inputEmail).text.toString().trim()
             password = findViewById<TextInputEditText>(R.id.inputPassword).text.toString().trim()
-            passwordCheck =
-                findViewById<TextInputEditText>(R.id.inputPasswordCheck).text.toString().trim()
+            passwordCheck = findViewById<TextInputEditText>(R.id.inputPasswordCheck).text.toString().trim()
 
             nickname = findViewById<TextInputEditText>(R.id.inputNickName).text.toString()
             gender = findViewById<TextInputEditText>(R.id.inputGender).text.toString()
@@ -101,7 +101,7 @@ class JoinActivity : AppCompatActivity() {
                             // 사용자 정보 저장 및 이미지 업로드
                             val userDataModel = UserDataModel(nickname, gender, city, age, uid)
                             FirebaseRef.userInfoRef.child(uid).setValue(userDataModel)
-                            uploadImage(profileImageView, uid)
+                            uploadImage(uid)
 
                             // 사용자 프로필 이미지 업로드
 
@@ -140,7 +140,7 @@ class JoinActivity : AppCompatActivity() {
                                 Toast.makeText(this, "비밀번호를 6자리 이상 입력해주세요", Toast.LENGTH_SHORT)
                                     .show()
                             } catch (e: Exception) {
-                                Toast.makeText(this, "다시 확인해주세요.", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "네트워크를 확인해주세요.", Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -152,6 +152,8 @@ class JoinActivity : AppCompatActivity() {
     }
 
     private fun checkValidation(): Boolean {
+        // 이미지 선택 안했을 때 toast 나중에 작성
+
         if (email?.isEmpty()!!) {
             AppUtil.showToast(this, "이메일을 입력해주세요.")
             return false
@@ -177,16 +179,16 @@ class JoinActivity : AppCompatActivity() {
         return true
     }
 
-    private fun uploadImage(imageView: ImageView, uid: String) {
+    private fun uploadImage(uid : String) {
         // 이미지 저장 주소 설정 Cloud Storage 설정
         val storage = Firebase.storage
         val storageRef = storage.reference.child("$uid.png")
 
 
         // Get the data from an ImageView as bytes
-        imageView.isDrawingCacheEnabled = true
-        imageView.buildDrawingCache()
-        val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+        profileImageView.isDrawingCacheEnabled = true
+        profileImageView.buildDrawingCache()
+        val bitmap = (profileImageView.drawable as BitmapDrawable).bitmap
         val baos = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()

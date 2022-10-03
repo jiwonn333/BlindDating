@@ -4,7 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.example.blinddating.MainActivity
 import com.example.blinddating.R
 
 class IntroActivity : AppCompatActivity() {
@@ -31,7 +34,18 @@ class IntroActivity : AppCompatActivity() {
         btnLogin.setOnClickListener {
             Log.d(TAG, "로그인버튼 클릭")
             val intentLogin = Intent(this, LoginActivity::class.java)
-            startActivity(intentLogin)
+            startForResult.launch(intentLogin)
+            //startActivity(intentLogin)
+
+        }
+    }
+    private val startForResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == RESULT_OK) {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 }

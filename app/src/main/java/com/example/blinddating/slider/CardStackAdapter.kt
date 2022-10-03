@@ -1,14 +1,25 @@
 package com.example.blinddating.slider
 
 import android.content.Context
+import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.blinddating.R
+import com.example.blinddating.auth.UserDataModel
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import java.util.zip.Inflater
 
-class CardStackAdapter(val context: Context, val items: List<String>) :
+private val TAG = "CardStackAdapter"
+
+class CardStackAdapter(val context: Context, val items: List<UserDataModel>) :
     RecyclerView.Adapter<CardStackAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardStackAdapter.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -21,13 +32,34 @@ class CardStackAdapter(val context: Context, val items: List<String>) :
     }
 
     override fun getItemCount(): Int {
-        return items.size;
+        return items.size
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun binding(data: String) {
+
+        var image = itemView.findViewById<ImageView>(R.id.profileImageArea)
+        var nickname = itemView.findViewById<TextView>(R.id.name)
+        var age = itemView.findViewById<TextView>(R.id.age)
+        var city = itemView.findViewById<TextView>(R.id.city)
+
+        fun binding(data: UserDataModel) {
+
+            val storageImgRef = Firebase.storage.reference.child(data.uid + ".png")
+            storageImgRef.downloadUrl.addOnCompleteListener(OnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val downloadUri = task.result
+                    Glide.with(context).load(downloadUri).into(image)
+                } else {
+                    // else일때...
+                }
+            })
+
+            nickname.append(data.nickname)
+            age.append(data.age)
+            city.append(data.city)
 
         }
     }
+
 
 }
