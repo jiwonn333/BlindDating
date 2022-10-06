@@ -15,6 +15,9 @@
             android:name=".setting.MyPageActivity"
             android:exported="false" />
         <activity
+            android:name=".setting.MyEditPageActivity"
+            android:exported="false" />
+        <activity
             android:name=".auth.LoginActivity"
             android:exported="false" />
         <activity

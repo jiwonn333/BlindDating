@@ -36,14 +36,12 @@ class CardStackAdapter(val context: Context, val items: List<UserDataModel>) :
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
         var image = itemView.findViewById<ImageView>(R.id.profileImageArea)
         var nickname = itemView.findViewById<TextView>(R.id.name)
         var age = itemView.findViewById<TextView>(R.id.age)
         var city = itemView.findViewById<TextView>(R.id.city)
 
         fun binding(data: UserDataModel) {
-
             val storageImgRef = Firebase.storage.reference.child(data.uid + ".png")
             storageImgRef.downloadUrl.addOnCompleteListener(OnCompleteListener { task ->
                 if (task.isSuccessful) {

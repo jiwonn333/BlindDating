@@ -9,18 +9,18 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.blinddating.auth.IntroActivity
 import com.example.blinddating.utils.FirebaseAuthUtils
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 class SplashActivity : AppCompatActivity() {
 
     private val TAG = "SplashActivity"
-
-    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
         val uid = FirebaseAuthUtils.getUid()
+
         // 현재 UID 값
         Log.d(TAG, uid)
 
@@ -39,7 +39,7 @@ class SplashActivity : AppCompatActivity() {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 startActivity(intent)
                 finish()
-            }, 3000)
+            }, 2000)
         } else {
             // Handler 경고 --> Looper 사용
             Handler(Looper.getMainLooper()).postDelayed({
@@ -47,7 +47,7 @@ class SplashActivity : AppCompatActivity() {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
                 startActivity(intent)
                 finish()
-            }, 3000)
+            }, 2000)
         }
 
 

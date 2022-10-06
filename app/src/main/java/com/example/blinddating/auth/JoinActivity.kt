@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -19,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.blinddating.MainActivity
 import com.example.blinddating.R
 import com.example.blinddating.utils.AppUtil
+import com.example.blinddating.utils.FirebaseAuthUtils
 import com.example.blinddating.utils.FirebaseRef
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
@@ -31,44 +31,42 @@ import com.google.firebase.storage.ktx.storage
 import java.io.ByteArrayOutputStream
 
 class JoinActivity : AppCompatActivity() {
-
-    private lateinit var auth: FirebaseAuth
     private val TAG = "JoinActivity"
 
-    private var email = ""
-    private var password = ""
-    private var passwordCheck = ""
+    private lateinit var auth: FirebaseAuth
+    lateinit var profileImageView: ImageView
+    lateinit var profileContents: TextView
 
     // 데이터베이스에 저장할 정보 (닉네임, 성별, 지역, 나이, UID)
     private var uid = ""
+    private var email = ""
+    private var password = ""
+    private var passwordCheck = ""
     private var nickname = ""
     private var gender = ""
     private var city = ""
     private var age = "" // 문자로 받아올 예정
 
-    lateinit var profileImageView : ImageView
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_join)
 
-        // Initialize Firebase Auth
+        // FirebaseAuth 인스턴스 초기화
         auth = Firebase.auth
 
         profileImageView = findViewById(R.id.imageArea)
-
-        val profileContents = findViewById<TextView>(R.id.imageTextArea)
+        profileContents = findViewById(R.id.imageTextArea)
 
         // 핸드폰에 있는 이미지 가져오기
-        val getImageUri = registerForActivityResult(ActivityResultContracts.GetContent(), ActivityResultCallback { uri ->
-            profileImageView.setImageURI(uri)
-            profileContents.visibility = View.GONE
-        })
+        val getImageUri = registerForActivityResult(
+            ActivityResultContracts.GetContent(),
+            ActivityResultCallback { uri ->
+                profileImageView.setImageURI(uri)
+                profileContents.visibility = View.GONE
+            })
 
-
-        // 이미지 클릭 시 Firebase storage에 저장
+        // 이미지 클릭 시 Firebase storage 저장
         profileImageView.setOnClickListener {
-            // 결과를 위한 활동 실행
             getImageUri.launch("image/*")
         }
 
@@ -77,14 +75,13 @@ class JoinActivity : AppCompatActivity() {
         btnJoin.setOnClickListener {
             email = findViewById<TextInputEditText>(R.id.inputEmail).text.toString().trim()
             password = findViewById<TextInputEditText>(R.id.inputPassword).text.toString().trim()
-            passwordCheck = findViewById<TextInputEditText>(R.id.inputPasswordCheck).text.toString().trim()
-
+            passwordCheck =
+                findViewById<TextInputEditText>(R.id.inputPasswordCheck).text.toString().trim()
             nickname = findViewById<TextInputEditText>(R.id.inputNickName).text.toString()
             gender = findViewById<TextInputEditText>(R.id.inputGender).text.toString()
             city = findViewById<TextInputEditText>(R.id.inputCity).text.toString()
             age = findViewById<TextInputEditText>(R.id.inputAge).text.toString()
 
-            // null 체크
             if (checkValidation()) {
                 // 신규 사용자 가입
                 auth.createUserWithEmailAndPassword(email, password)
@@ -95,37 +92,16 @@ class JoinActivity : AppCompatActivity() {
                             Toast.makeText(this, "계정 생성 성공", Toast.LENGTH_SHORT).show()
 
                             // 신규 사용자 유효성 검사사 (UID)
-                            val user = auth.currentUser
-                            uid = user?.uid.toString()
+                            uid = FirebaseAuthUtils.getUid()
 
                             // 사용자 정보 저장 및 이미지 업로드
-                            val userDataModel = UserDataModel(nickname, gender, city, age, uid)
+                            val userDataModel =
+                                UserDataModel(email, nickname, gender, city, age, uid)
                             FirebaseRef.userInfoRef.child(uid).setValue(userDataModel)
                             uploadImage(uid)
 
-                            // 사용자 프로필 이미지 업로드
+                            showLoginDialog()
 
-
-                            // 계정 생성 성공 시 바로 로그인 할 것인지
-                            val builder = AlertDialog.Builder(this)
-                            builder.setTitle("회원가입 성공")
-                                .setMessage("로그인 하시겠습니까?")
-                                .setPositiveButton(
-                                    "확인",
-                                    DialogInterface.OnClickListener { dialog, id ->
-                                        // 회원가입 성공 후 로그인시 바로 메인 Activity로 이동
-                                        val intent = Intent(this, MainActivity::class.java)
-                                        startActivity(intent)
-                                        finish()
-
-                                        Toast.makeText(this, "로그인 되었습니다.", Toast.LENGTH_SHORT)
-                                            .show()
-                                    })
-                                .setNegativeButton("취소",
-                                    DialogInterface.OnClickListener { dialog, i ->
-                                        finish()
-                                    })
-                            builder.show()
                         } else {
                             Log.w(TAG, "createUserWithEmail: 계정 생성 실패", task.exception)
                             try {
@@ -151,9 +127,30 @@ class JoinActivity : AppCompatActivity() {
 
     }
 
-    private fun checkValidation(): Boolean {
-        // 이미지 선택 안했을 때 toast 나중에 작성
+    // 계정 생성 성공 시 바로 로그인 할 것인지
+    private fun showLoginDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("회원가입 성공")
+            .setMessage("로그인 하시겠습니까?")
+            .setPositiveButton(
+                "확인",
+                DialogInterface.OnClickListener { dialog, id ->
+                    // 회원가입 성공 후 로그인시 바로 메인 Activity로 이동
+                    val intent = Intent(this, MainActivity::class.java)
+                    setResult(RESULT_OK, intent)
+                    finish()
 
+                    Toast.makeText(this, "로그인 되었습니다.", Toast.LENGTH_SHORT)
+                        .show()
+                })
+            .setNegativeButton("취소",
+                DialogInterface.OnClickListener { dialog, i ->
+                    finish()
+                })
+        builder.show()
+    }
+
+    private fun checkValidation(): Boolean {
         if (email?.isEmpty()!!) {
             AppUtil.showToast(this, "이메일을 입력해주세요.")
             return false
@@ -175,15 +172,17 @@ class JoinActivity : AppCompatActivity() {
         } else if (age?.isEmpty()!!) {
             AppUtil.showToast(this, "나이를 입력해주세요.")
             return false
+        } else if (profileContents.visibility != View.GONE) {
+            AppUtil.showToast(this, "사진을 업로드해주세요.")
+            return false
         }
         return true
     }
 
-    private fun uploadImage(uid : String) {
+    private fun uploadImage(uid: String) {
         // 이미지 저장 주소 설정 Cloud Storage 설정
         val storage = Firebase.storage
         val storageRef = storage.reference.child("$uid.png")
-
 
         // Get the data from an ImageView as bytes
         profileImageView.isDrawingCacheEnabled = true
@@ -195,10 +194,9 @@ class JoinActivity : AppCompatActivity() {
 
         var uploadTask = storageRef.putBytes(data)
         uploadTask.addOnFailureListener {
-            // Handle unsuccessful uploads
+
         }.addOnSuccessListener { taskSnapshot ->
-            // taskSnapshot.metadata contains file metadata such as size, content-type, etc.
-            // ...
+
         }
     }
 

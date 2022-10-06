@@ -1,68 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".setting.MyPageActivity">
 
-    <ImageView
-        android:id="@+id/myImage"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_gravity="center"
-        android:layout_margin="20dp" />
-
-    <TextView
-        android:id="@+id/myUid"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="UID 번호 : "
-        android:textColor="@color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
+        android:layout_margin="20dp">
+
+        <ImageView
+            android:id="@+id/myImage"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_margin="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/myNickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="이름 : "
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            app:layout_constraintStart_toEndOf="@+id/myImage"
+            app:layout_constraintTop_toTopOf="@+id/myImage" />
+
+        <TextView
+            android:id="@+id/myAge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="나이 : "
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            app:layout_constraintStart_toEndOf="@id/myImage"
+            app:layout_constraintTop_toBottomOf="@id/myNickname"
+            app:layout_constraintBottom_toTopOf="@id/myGender"/>
 
 
-    <TextView
-        android:id="@+id/myNickname"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="닉네임 : "
-        android:textColor="@color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
+        <TextView
+            android:id="@+id/myGender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="성별 : "
+            android:textColor="@color/black"
+            android:textSize="14dp"
+            app:layout_constraintStart_toEndOf="@id/myImage"
+            app:layout_constraintTop_toBottomOf="@id/myAge" />
 
-    <TextView
-        android:id="@+id/myAge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="나이 : "
-        android:textColor="@color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
+        <Button
+            android:id="@+id/btnEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="10dp"
+            android:text="편집"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/myCity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="지역 : "
-        android:textColor="@color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/myGender"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="성별 : "
-        android:textColor="@color/black"
-        android:textSize="20dp"
-        android:textStyle="bold" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -79,6 +87,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="로그아웃" />
+
+        <Button
+            android:id="@+id/btnLeave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="탈퇴하기" />
 
     </LinearLayout>
 

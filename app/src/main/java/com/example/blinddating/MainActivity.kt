@@ -39,9 +39,9 @@ class MainActivity : AppCompatActivity() {
         val settingIcon = findViewById<ImageView>(R.id.settingIcon)
         settingIcon.setOnClickListener {
             // MyPageActivity 로 이동
-
             val myPageIntent = Intent(this, MyPageActivity::class.java)
            startForResult.launch(myPageIntent)
+            Log.d(TAG, "이동 1")
 
         }
 
@@ -74,7 +74,6 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-
         cardStackAdapter = CardStackAdapter(baseContext, usersDataList)
         cardStackView.layoutManager = manager
         cardStackView.adapter = cardStackAdapter
@@ -90,24 +89,23 @@ class MainActivity : AppCompatActivity() {
                     usersDataList.add(user!!)
                 }
                 cardStackAdapter.notifyDataSetChanged()
-
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
                 // Getting Post failed, log a message
                 Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
             }
-
         }
-        // 데이터 저장 경로
-        // addValueEventListener - 경로의 전체 내용에 대한 변경 사항 읽고 수신 대기
+        // addValueEventListener - 데이터 저장 경로의 전체 내용에 대한 변경 사항 읽고 수신 대기
         FirebaseRef.userInfoRef.addValueEventListener(postListener)
     }
 
-    private val startForResult = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result: ActivityResult ->
+    private val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
         if (result.resultCode == RESULT_OK) {
+            val intent = Intent(this, IntroActivity::class.java)
+            startActivity(intent)
+            finish()
+        } else if (result.resultCode == 10) {
             val intent = Intent(this, IntroActivity::class.java)
             startActivity(intent)
             finish()

@@ -4,11 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blinddating.MainActivity
 import com.example.blinddating.R
+import com.example.blinddating.utils.AppUtil
 
 class IntroActivity : AppCompatActivity() {
     private val TAG = "IntroActivity"
@@ -26,7 +28,7 @@ class IntroActivity : AppCompatActivity() {
         btnJoin.setOnClickListener {
             Log.d(TAG, "회원가입 버튼 클릭")
             val intentJoin = Intent(this, JoinActivity::class.java)
-            startActivity(intentJoin)
+            startForResult.launch(intentJoin)
         }
 
         // 로그인 버튼 클릭 시 페이지 이동
