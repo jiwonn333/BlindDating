@@ -1,8 +1,6 @@
 package com.example.blinddating.slider
 
 import android.content.Context
-import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,12 +13,10 @@ import com.example.blinddating.auth.UserDataModel
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import java.util.zip.Inflater
-
-private val TAG = "CardStackAdapter"
 
 class CardStackAdapter(val context: Context, val items: List<UserDataModel>) :
     RecyclerView.Adapter<CardStackAdapter.ViewHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardStackAdapter.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val view: View = inflater.inflate(R.layout.item_card, parent, false)
@@ -52,9 +48,9 @@ class CardStackAdapter(val context: Context, val items: List<UserDataModel>) :
                 }
             })
 
-            nickname.append(data.nickname)
-            age.append(data.age)
-            city.append(data.city)
+            nickname.text = data.nickname
+            age.text = data.age
+            city.text = data.city
 
         }
     }

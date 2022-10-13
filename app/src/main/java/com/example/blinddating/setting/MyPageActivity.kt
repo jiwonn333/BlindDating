@@ -127,7 +127,6 @@ class MyPageActivity : AppCompatActivity() {
 
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                Log.d(TAG, "dataSnapshot.string : " + dataSnapshot.getValue(UserDataModel::class.java))
                 val data = dataSnapshot.getValue(UserDataModel::class.java)
                     if (data == null) {
                         Log.e(TAG, "data is null~~~")

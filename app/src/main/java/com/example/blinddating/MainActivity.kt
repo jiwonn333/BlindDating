@@ -12,6 +12,8 @@ import com.example.blinddating.auth.IntroActivity
 import com.example.blinddating.auth.UserDataModel
 import com.example.blinddating.setting.MyPageActivity
 import com.example.blinddating.slider.CardStackAdapter
+import com.example.blinddating.utils.AppUtil
+import com.example.blinddating.utils.FirebaseAuthUtils
 import com.example.blinddating.utils.FirebaseRef
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -22,27 +24,29 @@ import com.yuyakaido.android.cardstackview.CardStackView
 import com.yuyakaido.android.cardstackview.Direction
 
 class MainActivity : AppCompatActivity() {
+    private val TAG = "MainActivity"
 
-    lateinit var cardStackAdapter: CardStackAdapter
 
     // RecycelrView 만들 때 LayoutManager(LinearLayout, GridLayout)과 같은
     lateinit var manager: CardStackLayoutManager
+    lateinit var cardStackAdapter: CardStackAdapter
 
-    private val TAG = "MainActivity"
-
+    private val uid = FirebaseAuthUtils.getUid()
     private val usersDataList = mutableListOf<UserDataModel>()
+    private var swipeCount = 0
+    private lateinit var currentUserGender: String
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // 설정아이콘 클릭 시
         val settingIcon = findViewById<ImageView>(R.id.settingIcon)
         settingIcon.setOnClickListener {
             // MyPageActivity 로 이동
             val myPageIntent = Intent(this, MyPageActivity::class.java)
-           startForResult.launch(myPageIntent)
-            Log.d(TAG, "이동 1")
-
+            startForResult.launch(myPageIntent)
         }
 
         val cardStackView = findViewById<CardStackView>(R.id.cardStackView)
@@ -53,6 +57,21 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onCardSwiped(direction: Direction?) {
+                // 오른쪽, 왼쪽으로 스와이프 했을때 토스트메시지
+                if (direction == Direction.Right) {
+                    AppUtil.showToast(baseContext, "오른쪽")
+                }
+
+                if (direction == Direction.Left) {
+                    AppUtil.showToast(baseContext, "왼쪽")
+                }
+                swipeCount += 1
+                if (swipeCount == usersDataList.count()) {
+                    // 유저정보 다시 불러오기
+                    getUserDataList(currentUserGender)
+                    AppUtil.showToast(baseContext, "사용자들을 새롭게 다시 불러옴")
+                }
+
 
             }
 
@@ -78,15 +97,41 @@ class MainActivity : AppCompatActivity() {
         cardStackView.layoutManager = manager
         cardStackView.adapter = cardStackAdapter
 
-        getUserDataList()
+//        getUserDataList(currentUserGender)
+        getMyData()
+
+
     }
 
-    private fun getUserDataList() {
+    // 현재 사용자 성별 받아오기
+    private fun getMyData() {
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val data = dataSnapshot.getValue(UserDataModel::class.java)
+                currentUserGender = data?.gender.toString()
+                getUserDataList(currentUserGender)
+            }
+
+            override fun onCancelled(databaseErrorf: DatabaseError) {
+                Log.w(TAG, "loadPost:onCancelled", databaseErrorf.toException())
+            }
+
+        }
+
+        FirebaseRef.userInfoRef.child(uid).addValueEventListener(postListener)
+    }
+
+    private fun getUserDataList(currentGender: String) {
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (dataModel in dataSnapshot.children) {
                     var user = dataModel.getValue(UserDataModel::class.java)
-                    usersDataList.add(user!!)
+                    if (currentGender == user?.gender.toString()) {
+
+                    } else {
+                        usersDataList.add(user!!)
+                    }
+
                 }
                 cardStackAdapter.notifyDataSetChanged()
             }
@@ -100,17 +145,18 @@ class MainActivity : AppCompatActivity() {
         FirebaseRef.userInfoRef.addValueEventListener(postListener)
     }
 
-    private val startForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
-        if (result.resultCode == RESULT_OK) {
-            val intent = Intent(this, IntroActivity::class.java)
-            startActivity(intent)
-            finish()
-        } else if (result.resultCode == 10) {
-            val intent = Intent(this, IntroActivity::class.java)
-            startActivity(intent)
-            finish()
+    private val startForResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == RESULT_OK) {
+                val intent = Intent(this, IntroActivity::class.java)
+                startActivity(intent)
+                finish()
+            } else if (result.resultCode == 10) {
+                val intent = Intent(this, IntroActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
-    }
 
 
 }
