@@ -95,11 +95,38 @@
                 android:layout_margin="5dp"
                 android:background="@color/white">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/inputGender"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="성별"
+                    android:textSize="18dp" />
+
+                <RadioGroup
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="성별(M/W)" />
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radio_m"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:onClick="onRadioButtonClicked"
+                        android:text="남자"
+                        tools:ignore="OnClick" />
+
+                    <RadioButton
+                        android:id="@+id/radio_w"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:onClick="onRadioButtonClicked"
+                        android:text="여자"
+                        tools:ignore="OnClick" />
+                </RadioGroup>
+
+
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -125,8 +152,8 @@
                     android:id="@+id/inputAge"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:hint="나이" />
+                    android:hint="나이"
+                    android:inputType="number" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button

@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private val usersDataList = mutableListOf<UserDataModel>()
     private var swipeCount = 0
     private lateinit var currentUserGender: String
+    private lateinit var otherUid: String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,11 +60,15 @@ class MainActivity : AppCompatActivity() {
             override fun onCardSwiped(direction: Direction?) {
                 // 오른쪽, 왼쪽으로 스와이프 했을때 토스트메시지
                 if (direction == Direction.Right) {
-                    AppUtil.showToast(baseContext, "오른쪽")
+                    AppUtil.showToast(baseContext, "오른쪽/좋아요")
+
+                    otherUid = usersDataList[swipeCount].uid.toString()
+                    userLikeOtherUser(uid, otherUid)
+
                 }
 
                 if (direction == Direction.Left) {
-                    AppUtil.showToast(baseContext, "왼쪽")
+                    AppUtil.showToast(baseContext, "왼쪽/싫어요")
                 }
                 swipeCount += 1
                 if (swipeCount == usersDataList.count()) {
@@ -101,6 +106,11 @@ class MainActivity : AppCompatActivity() {
         getMyData()
 
 
+    }
+
+    private fun userLikeOtherUser(myUid: String, otherUid: String) {
+        // Firebase에 저장
+        FirebaseRef.userLikeRef.child(myUid).child(otherUid).setValue("true")
     }
 
     // 현재 사용자 성별 받아오기

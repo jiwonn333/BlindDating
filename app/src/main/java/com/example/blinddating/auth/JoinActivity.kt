@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.RadioButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
@@ -78,7 +79,6 @@ class JoinActivity : AppCompatActivity() {
             passwordCheck =
                 findViewById<TextInputEditText>(R.id.inputPasswordCheck).text.toString().trim()
             nickname = findViewById<TextInputEditText>(R.id.inputNickName).text.toString()
-            gender = findViewById<TextInputEditText>(R.id.inputGender).text.toString()
             city = findViewById<TextInputEditText>(R.id.inputCity).text.toString()
             age = findViewById<TextInputEditText>(R.id.inputAge).text.toString()
 
@@ -125,6 +125,25 @@ class JoinActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    private fun getUserGender(view: View) {
+        if (view is RadioButton) {
+            val checked = view.isChecked
+
+            when (view.id) {
+                R.id.radio_m ->
+                    if (checked) {
+                        gender = R.id.radio_m.toString()
+                        Log.d(TAG, "성별 :" + gender)
+                    }
+                R.id.radio_w ->
+                    if (checked) {
+                        gender = R.id.radio_w.toString()
+                    }
+
+            }
+        }
     }
 
     // 계정 생성 성공 시 바로 로그인 할 것인지
