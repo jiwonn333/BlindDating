@@ -40,9 +40,9 @@
             android:text="나이 : "
             android:textColor="@color/black"
             android:textSize="14dp"
+            app:layout_constraintBottom_toTopOf="@id/myGender"
             app:layout_constraintStart_toEndOf="@id/myImage"
-            app:layout_constraintTop_toBottomOf="@id/myNickname"
-            app:layout_constraintBottom_toTopOf="@id/myGender"/>
+            app:layout_constraintTop_toBottomOf="@id/myNickname" />
 
 
         <TextView
@@ -71,11 +71,32 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/myLikeList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="님의 좋아요 리스트"
+                android:textColor="@color/black"
+                android:textStyle="bold" />
+
+            <ListView
+                android:id="@+id/userLikeListView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"

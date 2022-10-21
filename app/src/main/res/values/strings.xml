@@ -7,5 +7,10 @@
     <string name="msg_pw">비밀번호가 일치합니다.</string>
     <string name="msg_pw_check">비밀번호 일치 확인해주세요.</string>
 
+    <!-- Notification -->
+    <string name="channel_name">Blind Dating</string>
+    <string name="channel_description">블라인드 데이팅 어플</string>
+
+
 
 </resources>

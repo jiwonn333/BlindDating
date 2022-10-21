@@ -1,6 +1,12 @@
 package com.example.blinddating
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.TaskStackBuilder
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -8,6 +14,8 @@ import android.widget.ImageView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.example.blinddating.auth.IntroActivity
 import com.example.blinddating.auth.UserDataModel
 import com.example.blinddating.setting.MyPageActivity
@@ -25,6 +33,7 @@ import com.yuyakaido.android.cardstackview.Direction
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
+    private val CHANNEL_ID = "Test_Channel"
 
 
     // RecycelrView 만들 때 LayoutManager(LinearLayout, GridLayout)과 같은
@@ -58,17 +67,16 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onCardSwiped(direction: Direction?) {
-                // 오른쪽, 왼쪽으로 스와이프 했을때 토스트메시지
                 if (direction == Direction.Right) {
-                    AppUtil.showToast(baseContext, "오른쪽/좋아요")
-
                     otherUid = usersDataList[swipeCount].uid.toString()
                     userLikeOtherUser(uid, otherUid)
 
+                    // 내가 좋아요 한 사람의 좋아요 리스트 불러오기
+                    getOtherUserLikeList(otherUid)
                 }
 
                 if (direction == Direction.Left) {
-                    AppUtil.showToast(baseContext, "왼쪽/싫어요")
+
                 }
                 swipeCount += 1
                 if (swipeCount == usersDataList.count()) {
@@ -107,6 +115,29 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+    
+    // 사용자가 좋아요 한 사람의 좋아요 리스트 받아오기
+    private fun getOtherUserLikeList(otherUid: String) {
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (dataModel in dataSnapshot.children) {
+                    val likeUserKey = dataModel.key.toString()
+
+                    if (likeUserKey == uid) {
+                        AppUtil.showToast(baseContext, "매칭 완료")
+                        createNotificationChannel()
+                        showNotification()
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
+            }
+        }
+        // addValueEventListener - 데이터 저장 경로의 전체 내용에 대한 변경 사항 읽고 수신 대기
+        FirebaseRef.userLikeRef.child(otherUid).addValueEventListener(postListener)
+    }
 
     private fun userLikeOtherUser(myUid: String, otherUid: String) {
         // Firebase에 저장
@@ -139,6 +170,7 @@ class MainActivity : AppCompatActivity() {
                     if (currentGender == user?.gender.toString()) {
 
                     } else {
+                        // 사용자와 다른 성별의 user 불러옴
                         usersDataList.add(user!!)
                     }
 
@@ -168,5 +200,40 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
+    // notification 채널 등록
+    private fun createNotificationChannel() {
+        // NotificationChannel 생성하되 api26 이상에서 사용, 라이브러리가 아닌 새 클래스임
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.channel_name)
+            var descriptionText = getString(R.string.channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            // 시스템에 채널 등록
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager?.createNotificationChannel(channel)
+        }
+    }
+    
+    private fun showNotification() {
+        var notifyId = 123
+        val intent = Intent(this, MyPageActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        var builder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.notification_dating_icon)
+            .setContentTitle("매칭완료!")
+            .setContentText("내가 선택한 사람이 나를 좋아해요")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+        with(NotificationManagerCompat.from(this)) {
+            notify(notifyId, builder.build())
+        }
+    }
 
 }
