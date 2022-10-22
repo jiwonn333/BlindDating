@@ -38,7 +38,7 @@ class MyPageActivity : AppCompatActivity() {
     private val userLikeList = mutableListOf<UserDataModel>()
     private val userLikeListUid = mutableListOf<String>()
 
-    lateinit var listViewAdapter : ListViewAdapter
+    lateinit var listViewAdapter: ListViewAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,8 +51,11 @@ class MyPageActivity : AppCompatActivity() {
 
         getMyData()
 
-        // 전체 유저 데이터 받아오기
-        getUserDataList()
+        userListView.setOnItemClickListener { parent, view, position, id ->
+            Log.d(TAG, "position uid : " + userLikeList[position].uid.toString())
+            checkMatching(userLikeList[position].uid.toString())
+        }
+
         // 내가 좋아요 한 사람의 리스트 받아오기
         getUserLikeList()
 
@@ -74,6 +77,43 @@ class MyPageActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    private fun checkMatching(otherUid: String) {
+        val postListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+
+                Log.d(TAG, otherUid)
+                Log.d(TAG, dataSnapshot.toString())
+                Log.d(TAG, "value: " + dataSnapshot.value.toString())
+                Log.d(TAG, "children count: " + dataSnapshot.children.count())
+                Log.d(TAG, "childrenCount: " + dataSnapshot.childrenCount)
+
+                if (dataSnapshot.children.count() == 0) {
+                    AppUtil.showToast(baseContext, "날 선택 안했어요ㅜ.ㅜ")
+                } else {
+
+                    for (dataModel in dataSnapshot.children) {
+
+                        val likeUserKey = dataModel.key.toString()
+                        if (likeUserKey.equals(uid)) {
+                            AppUtil.showToast(baseContext, "매칭되었어요!")
+                        } else {
+                            AppUtil.showToast(baseContext, "매칭이 되지 않았습니다.")
+
+                        }
+                    }
+                }
+
+
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
+            }
+        }
+        // addValueEventListener - 데이터 저장 경로의 전체 내용에 대한 변경 사항 읽고 수신 대기
+        FirebaseRef.userLikeRef.child(otherUid).addValueEventListener(postListener)
     }
 
     private fun showLogoutDialog() {
@@ -147,7 +187,7 @@ class MyPageActivity : AppCompatActivity() {
                 myNickname.text = data?.nickname
                 myAge.text = data?.age
                 myGender.text = data?.gender
-                myMatchingList.text = (data?.nickname + "님의 매칭 리스트")
+                myMatchingList.text = (data?.nickname + "님의 좋아요 리스트")
 
                 val storageRef = Firebase.storage.reference.child(data?.uid + ".png")
                 storageRef.downloadUrl.addOnCompleteListener(OnCompleteListener { task ->
