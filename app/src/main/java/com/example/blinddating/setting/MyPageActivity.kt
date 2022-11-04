@@ -20,19 +20,16 @@ import com.example.blinddating.utils.AppUtil
 import com.example.blinddating.utils.FirebaseAuthUtils
 import com.example.blinddating.utils.FirebaseRef
 import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
 
 class MyPageActivity : AppCompatActivity() {
 
     private val TAG = "MyPageActivity"
 
-    private lateinit var auth: FirebaseAuth
     private val uid = FirebaseAuthUtils.getUid()
 
     private val userLikeList = mutableListOf<UserDataModel>()
@@ -89,6 +86,7 @@ class MyPageActivity : AppCompatActivity() {
                 Log.d(TAG, "children count: " + dataSnapshot.children.count())
                 Log.d(TAG, "childrenCount: " + dataSnapshot.childrenCount)
 
+                // 아무도 선택하지 않아서 count가 0일때
                 if (dataSnapshot.children.count() == 0) {
                     AppUtil.showToast(baseContext, "날 선택 안했어요ㅜ.ㅜ")
                 } else {
@@ -145,20 +143,47 @@ class MyPageActivity : AppCompatActivity() {
             .setMessage("탈퇴 하시겠습니까?")
             .setPositiveButton("확인", DialogInterface.OnClickListener { dialog, id ->
                 val user = Firebase.auth.currentUser!!
+
+                val storageRef = FirebaseAuthUtils.getStorageRef().child("images/"+ uid + ".png").name
                 user.delete().addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        FirebaseRef.userInfoRef.removeValue()
-                        FirebaseAuthUtils.getStorage().delete().addOnCompleteListener(
-                            OnCompleteListener { task ->
+                        FirebaseRef.userInfoRef.child(uid).removeValue().addOnCompleteListener {
+                            if (task.isSuccessful) {
+                                AppUtil.showToast(this, "사용자 정보 데이터베이스 삭제 성공")
+                            } else {
+                                AppUtil.showToast(this, "사용자 정보 데이터베이스 삭제 실패")
+                            }
+                        }
+                        FirebaseRef.userLikeRef.child(uid).removeValue().addOnCompleteListener {
+                            if (task.isSuccessful) {
+                                AppUtil.showToast(this, "사용자가 좋아요 누른 데이터베이스 삭제 성공")
+                            } else {
+                                AppUtil.showToast(this, "사용가 좋아요 누른 데이터베이스 삭제 실패")
+                            }
+                        }
+
+                        FirebaseAuthUtils.getStorageRef().child(storageRef).delete()
+                            .addOnSuccessListener {
                                 if (task.isSuccessful) {
-                                    AppUtil.showToast(this, "이미지 삭제 성공ㅇㅇ")
+                                    AppUtil.showToast(this, "이미지 삭제 성공")
+                                    Log.d(TAG, "이미지 삭제 성공")
+                                } else {
+                                    AppUtil.showToast(this, "이미지 삭제 실패")
+                                    Log.e(TAG, "이미지 Ref : " + storageRef)
+                                    Log.e(TAG, "이미지 삭제 실패 : " + task.exception.toString())
                                 }
-                            })
+                            }
+
+
+
                         AppUtil.showToast(this, "탈퇴 되었습니다.")
                         val intent = Intent(this, MainActivity::class.java)
                         setResult(10, intent)
                         finish()
 
+                    } else {
+                        AppUtil.showToast(this, "탈퇴 오류가 있습니다.")
+                        Log.e(TAG, task.exception.toString())
                     }
                 }
             })
@@ -189,8 +214,8 @@ class MyPageActivity : AppCompatActivity() {
                 myGender.text = data?.gender
                 myMatchingList.text = (data?.nickname + "님의 좋아요 리스트")
 
-                val storageRef = Firebase.storage.reference.child(data?.uid + ".png")
-                storageRef.downloadUrl.addOnCompleteListener(OnCompleteListener { task ->
+                FirebaseAuthUtils.getStorageRef()
+                    .child(data?.uid + ".png").downloadUrl.addOnCompleteListener(OnCompleteListener { task ->
                     if (task.isSuccessful) {
                         Glide.with(baseContext).load(task.result).into(myImage)
                     }
@@ -236,6 +261,7 @@ class MyPageActivity : AppCompatActivity() {
                 for (dataModel in dataSnapshot.children) {
                     // 내가 좋아요 한 사람의 uid가 userLikeList에 들어있음
                     userLikeListUid.add(dataModel.key.toString())
+                    Log.e(TAG, "내가 좋아요 한 사람 : " + userLikeListUid.toString())
                 }
                 getUserDataList()
             }

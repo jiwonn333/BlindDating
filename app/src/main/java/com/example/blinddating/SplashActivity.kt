@@ -8,8 +8,10 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.blinddating.auth.IntroActivity
 import com.example.blinddating.utils.FirebaseAuthUtils
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.messaging.FirebaseMessaging
 
 class SplashActivity : AppCompatActivity() {
 

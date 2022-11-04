@@ -112,7 +112,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:onClick="onRadioButtonClicked"
+                        android:onClick="onGenderRadioButtonClicked"
                         android:text="남자"
                         tools:ignore="OnClick" />
 
@@ -121,7 +121,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:onClick="onRadioButtonClicked"
+                        android:onClick="onGenderRadioButtonClicked"
                         android:text="여자"
                         tools:ignore="OnClick" />
                 </RadioGroup>

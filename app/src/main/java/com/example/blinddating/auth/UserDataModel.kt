@@ -1,6 +1,5 @@
 package com.example.blinddating.auth
 
-import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
 
 @IgnoreExtraProperties
@@ -11,7 +10,8 @@ data class UserDataModel(
     val gender: String? = null,
     val city: String? = null,
     val age: String? = null,
-    val uid: String? = null
+    val uid: String? = null,
+    val token: String? = null
 
 )
 

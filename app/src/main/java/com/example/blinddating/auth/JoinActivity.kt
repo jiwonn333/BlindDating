@@ -8,11 +8,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.RadioButton
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +17,7 @@ import com.example.blinddating.R
 import com.example.blinddating.utils.AppUtil
 import com.example.blinddating.utils.FirebaseAuthUtils
 import com.example.blinddating.utils.FirebaseRef
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -28,7 +25,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
+import com.google.firebase.messaging.FirebaseMessaging
 import java.io.ByteArrayOutputStream
 
 class JoinActivity : AppCompatActivity() {
@@ -82,6 +79,7 @@ class JoinActivity : AppCompatActivity() {
             city = findViewById<TextInputEditText>(R.id.inputCity).text.toString()
             age = findViewById<TextInputEditText>(R.id.inputAge).text.toString()
 
+
             if (checkValidation()) {
                 // 신규 사용자 가입
                 auth.createUserWithEmailAndPassword(email, password)
@@ -94,13 +92,38 @@ class JoinActivity : AppCompatActivity() {
                             // 신규 사용자 유효성 검사사 (UID)
                             uid = FirebaseAuthUtils.getUid()
 
-                            // 사용자 정보 저장 및 이미지 업로드
-                            val userDataModel =
-                                UserDataModel(email, nickname, gender, city, age, uid)
-                            FirebaseRef.userInfoRef.child(uid).setValue(userDataModel)
-                            uploadImage(uid)
+                            // Token 값 받아오기
+                            FirebaseMessaging.getInstance().token.addOnCompleteListener(
+                                OnCompleteListener { task ->
+                                    if (!task.isSuccessful) {
+                                        Log.w(
+                                            TAG,
+                                            "Fetching FCM registration token failed",
+                                            task.exception
+                                        )
+                                        return@OnCompleteListener
+                                    }
+                                    // Get new FCM registration token
+                                    val token = task.result
+                                    Log.w(TAG, "user token : $token")
 
-                            showLoginDialog()
+                                    // 사용자 정보 저장 및 이미지 업로드
+                                    val userDataModel =
+                                        UserDataModel(
+                                            email,
+                                            nickname,
+                                            gender,
+                                            city,
+                                            age,
+                                            uid,
+                                            token
+                                        )
+                                    FirebaseRef.userInfoRef.child(uid).setValue(userDataModel)
+                                    uploadImage(uid)
+
+                                    showLoginDialog()
+
+                                })
 
                         } else {
                             Log.w(TAG, "createUserWithEmail: 계정 생성 실패", task.exception)
@@ -121,25 +144,23 @@ class JoinActivity : AppCompatActivity() {
                         }
                     }
             }
-
-
         }
-
     }
 
-    private fun getUserGender(view: View) {
+    fun onGenderRadioButtonClicked(view: View) {
         if (view is RadioButton) {
             val checked = view.isChecked
 
             when (view.id) {
                 R.id.radio_m ->
                     if (checked) {
-                        gender = R.id.radio_m.toString()
+                        gender = "남자"
                         Log.d(TAG, "성별 :" + gender)
                     }
                 R.id.radio_w ->
                     if (checked) {
-                        gender = R.id.radio_w.toString()
+                        gender = "여자"
+                        Log.d(TAG, "성별 :" + gender)
                     }
 
             }
@@ -200,8 +221,10 @@ class JoinActivity : AppCompatActivity() {
 
     private fun uploadImage(uid: String) {
         // 이미지 저장 주소 설정 Cloud Storage 설정
-        val storage = Firebase.storage
-        val storageRef = storage.reference.child("$uid.png")
+//        val storage = Firebase.storage
+//        val storageRef = storage.reference.child("$uid.png")
+
+        FirebaseAuthUtils.getStorageRef().child("$uid.png")
 
         // Get the data from an ImageView as bytes
         profileImageView.isDrawingCacheEnabled = true
@@ -211,7 +234,7 @@ class JoinActivity : AppCompatActivity() {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val data = baos.toByteArray()
 
-        var uploadTask = storageRef.putBytes(data)
+        var uploadTask = FirebaseAuthUtils.getStorageRef().child("$uid.png").putBytes(data)
         uploadTask.addOnFailureListener {
 
         }.addOnSuccessListener { taskSnapshot ->
