@@ -15,21 +15,18 @@
         android:theme="@style/Theme.BlindDating">
         <activity
             android:name=".setting.MyPageActivity"
-            android:taskAffinity=""
             android:excludeFromRecents="true"
-            android:exported="false" />
-        <activity
-            android:name=".setting.MyEditPageActivity"
-            android:exported="false" />
-        <activity
-            android:name=".auth.LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".auth.JoinActivity"
-            android:exported="false" />
-        <activity
-            android:name=".auth.IntroActivity"
-            android:exported="false" />
+            android:taskAffinity="" />
+        <service android:name=".message.fcm.FirebaseService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.RESPOND_VIA_MESSAGE"/>
+            </intent-filter>
+        </service>
+        <activity android:name=".setting.MyEditPageActivity" />
+        <activity android:name=".auth.LoginActivity" />
+        <activity android:name=".auth.JoinActivity" />
+        <activity android:name=".auth.IntroActivity" />
         <activity
             android:name=".SplashActivity"
             android:exported="true">

@@ -10,7 +10,7 @@
     <!-- Notification -->
     <string name="channel_name">Blind Dating</string>
     <string name="channel_description">블라인드 데이팅 어플</string>
-
+    <string name="channel_id">Test_Channel</string>
 
 
 </resources>

@@ -124,7 +124,6 @@ class JoinActivity : AppCompatActivity() {
                                     showLoginDialog()
 
                                 })
-
                         } else {
                             Log.w(TAG, "createUserWithEmail: 계정 생성 실패", task.exception)
                             try {
